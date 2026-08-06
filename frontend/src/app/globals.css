@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand: #ff7c00;
+  --color-brand-fierce: #ed2f00;
+  --color-background: #0d0d0d;
+  --color-surface: #1a1a1a;
+  --color-surface-elevated: #242424;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #aaaaaa;
+  --color-border: #2a2a2a;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  ::selection {
+    @apply bg-brand text-white;
+  }
+
+  /* Accessible focus states — WCAG AA */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-background;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Global max-width container — Design Review fix #1 */
+  .site-container {
+    @apply mx-auto w-full max-w-content px-6 md:px-10;
+  }
+
+  /* Standardised section spacing — Design Review fix #4 (80–100px) */
+  .section-padding {
+    @apply py-20 lg:py-24;
+  }
+
+  .section-heading {
+    @apply text-3xl font-bold tracking-tight text-foreground md:text-h2;
+  }
+
+  .section-subheading {
+    @apply mt-4 max-w-2xl text-base text-muted;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center rounded-full border border-brand/40 bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand;
+  }
+
+  /* Client logo hover — grayscale to colour (Design Review 5b) */
+  .logo-hover {
+    @apply opacity-60 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0 focus-visible:opacity-100 focus-visible:grayscale-0;
+  }
+}

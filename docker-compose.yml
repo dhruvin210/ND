@@ -1,0 +1,130 @@
+# /home/nxtdynamix/NextDynamicsWebSite1/docker-compose.yml
+#
+# TRANSITIONAL VERSION - use this for today's Nginx -> Traefik cutover.
+# Still builds locally (no CI/GHCR yet). Once the repo is pushed and CI/CD
+# is running, swap each `build:` block for `image: ${X_IMAGE_REF}` to match
+# the CI-target version already generated - everything else here stays the same.
+
+name: nextdynamix
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nextdynamix
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: nextdynamix
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./infrastructure/docker/init-cms-db.sql:/docker-entrypoint-initdb.d/init-cms-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nextdynamix"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - backend/.env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://nextdynamix:${POSTGRES_PASSWORD}@postgres:5432/nextdynamix
+      REDIS_URL: redis://redis:6379/0
+      CMS_BASE_URL: http://cms:1337
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    networks:
+      - web
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.nextdynamix-api.rule=Host(`api.nextdynamix.avinyaglobal.com`)"
+      - "traefik.http.routers.nextdynamix-api.entrypoints=websecure"
+      - "traefik.http.routers.nextdynamix-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.nextdynamix-api.loadbalancer.server.port=8000"
+      - "traefik.http.services.nextdynamix-api.loadbalancer.responseForwarding.flushInterval=100ms"
+
+  cms:
+    build: ./cms
+    restart: unless-stopped
+    env_file:
+      - cms/.env
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: nextdynamix_cms
+      DATABASE_USERNAME: nextdynamix
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      NODE_ENV: production
+      PUBLIC_URL: https://cms.nextdynamix.avinyaglobal.com
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - web
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.nextdynamix-cms.rule=Host(`cms.nextdynamix.avinyaglobal.com`)"
+      - "traefik.http.routers.nextdynamix-cms.entrypoints=websecure"
+      - "traefik.http.routers.nextdynamix-cms.tls.certresolver=letsencrypt"
+      - "traefik.http.services.nextdynamix-cms.loadbalancer.server.port=1337"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_SITE_URL: https://www.nextdynamix.avinyaglobal.com
+        NEXT_PUBLIC_API_URL: https://api.nextdynamix.avinyaglobal.com
+        NEXT_PUBLIC_CMS_URL: https://cms.nextdynamix.avinyaglobal.com
+        NEXT_PUBLIC_CMS_HOSTNAME: cms.nextdynamix.avinyaglobal.com
+    restart: unless-stopped
+    env_file:
+      - frontend/.env.local
+    environment:
+      CMS_INTERNAL_URL: http://cms:1337
+    depends_on:
+      - backend
+      - cms
+    networks:
+      - web
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      - "traefik.http.routers.nextdynamix.rule=Host(`nextdynamix.avinyaglobal.com`) || Host(`www.nextdynamix.avinyaglobal.com`)"
+      - "traefik.http.routers.nextdynamix.entrypoints=websecure"
+      - "traefik.http.routers.nextdynamix.tls.certresolver=letsencrypt"
+      - "traefik.http.services.nextdynamix.loadbalancer.server.port=3000"
+
+networks:
+  web:
+    external: true
+  default:
+
+volumes:
+  pgdata:

@@ -1,0 +1,30 @@
+Metadata-Version: 2.4
+Name: nextdynamix-backend
+Version: 1.0.0
+Summary: NextDynamix website backend — contact, newsletter, and RAG chatbot APIs
+Requires-Python: >=3.12
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: uvicorn[standard]>=0.32.0
+Requires-Dist: pydantic>=2.10.0
+Requires-Dist: pydantic-settings>=2.7.0
+Requires-Dist: sqlalchemy[asyncio]>=2.0.36
+Requires-Dist: asyncpg>=0.30.0
+Requires-Dist: alembic>=1.14.0
+Requires-Dist: redis>=5.2.0
+Requires-Dist: httpx>=0.28.0
+Requires-Dist: slowapi>=0.1.9
+Requires-Dist: pgvector>=0.3.6
+Requires-Dist: openai>=1.58.0
+Requires-Dist: anthropic>=0.42.0
+Requires-Dist: langgraph>=0.2.60
+Requires-Dist: langchain-core>=0.3.28
+Requires-Dist: llama-index-core>=0.12.0
+Requires-Dist: llama-index-embeddings-openai>=0.3.0
+Requires-Dist: llama-index-vector-stores-postgres>=0.4.0
+Requires-Dist: beautifulsoup4>=4.12.0
+Requires-Dist: email-validator>=2.2.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.3.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.25.0; extra == "dev"
+Requires-Dist: ruff>=0.8.0; extra == "dev"
+Requires-Dist: mypy>=1.14.0; extra == "dev"

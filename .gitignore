@@ -1,0 +1,24 @@
+# deps
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+# env & secrets
+.env
+.env.local
+.env.production
+
+# builds
+.next/
+out/
+dist/
+build/
+.strapi/
+
+# misc
+.DS_Store
+*.log
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/

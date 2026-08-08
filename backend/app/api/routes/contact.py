@@ -8,7 +8,12 @@ from app.core.database import get_db
 from app.core.limiter import limiter
 from app.core.config import get_settings
 from app.models.lead import Lead, NewsletterSubscriber
-from app.schemas.contact import ContactRequest, ContactResponse, NewsletterRequest
+from app.schemas.contact import (
+    ConsultationRequest,
+    ContactRequest,
+    ContactResponse,
+    NewsletterRequest,
+)
 from app.services import hubspot
 
 logger = logging.getLogger(__name__)
@@ -53,6 +58,46 @@ async def submit_contact(
     await db.commit()
 
     logger.info("New lead stored: %s (%s)", payload.email, payload.company)
+    return ContactResponse()
+
+
+@router.post("/consultation", response_model=ContactResponse)
+@limiter.limit(settings.rate_limit_contact)
+async def submit_consultation(
+    request: Request,
+    payload: ConsultationRequest,
+    db: AsyncSession = Depends(get_db),
+) -> ContactResponse:
+    """Lead from the /solutions consultation form."""
+    # Honeypot tripped — pretend success, store nothing.
+    if payload.website:
+        return ContactResponse()
+
+    lead = Lead(
+        name=payload.name,
+        email=payload.email,
+        phone=payload.phone or None,
+        project_details=payload.projectDetails or None,
+        interest=payload.interest,
+        source=payload.source,
+    )
+    db.add(lead)
+    await db.flush()
+
+    contact_id = await hubspot.upsert_contact(
+        email=payload.email,
+        name=payload.name,
+        phone=payload.phone or None,
+        project_details=payload.projectDetails or None,
+        interest=payload.interest,
+        source=payload.source,
+    )
+    lead.hubspot_contact_id = contact_id
+    await db.commit()
+
+    logger.info(
+        "New consultation lead stored: %s (interest=%s)", payload.email, payload.interest
+    )
     return ContactResponse()
 
 

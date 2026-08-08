@@ -39,6 +39,26 @@ export const categoryIcons: Record<ServiceCategory, LucideIcon> = {
   Designing: Palette,
 };
 
+/** Positioning copy for each discipline — used by the catalog and mega menu. */
+export const categoryBlurbs: Record<ServiceCategory, string> = {
+  "Cyber Security":
+    "Perimeter to endpoint to cloud — defence that is designed, deployed, and monitored, not just bought.",
+  "Generative AI":
+    "From where AI actually pays off to the system running in production behind it.",
+  "Cloud Services":
+    "Architecture, migration, and day-two operations across the three major clouds.",
+  "Web Development":
+    "Server-rendered, accessible, fast — built on the stack your team can maintain.",
+  "CMS & Ecommerce":
+    "Storefronts and content platforms your marketing team can run without a developer.",
+  "App Development":
+    "Native and cross-platform apps shipped to both stores from one delivery team.",
+  "Digital Marketing":
+    "Demand generation measured against pipeline, not impressions.",
+  Designing:
+    "Identity and interface work grounded in research, delivered as a usable system.",
+};
+
 const rawServices: Omit<ServiceItem, "icon">[] = [
   // Cyber Security
   { slug: "firewalls-solutions", title: "Firewalls Solutions", category: "Cyber Security", description: "Perimeter and network firewall design, deployment, and management." },
@@ -124,6 +144,38 @@ export const categories: ServiceCategory[] = [
 export function getServicesByCategory(category: ServiceCategory) {
   return services.filter((s) => s.category === category);
 }
+
+/** Discipline → its services, grouped once at module load. */
+export const servicesByCategory: Record<ServiceCategory, ServiceItem[]> =
+  categories.reduce(
+    (acc, category) => {
+      acc[category] = services.filter((s) => s.category === category);
+      return acc;
+    },
+    {} as Record<ServiceCategory, ServiceItem[]>,
+  );
+
+/** Stable `#fragment` per discipline — the catalog renders these as section ids. */
+export const categoryAnchors: Record<ServiceCategory, string> =
+  categories.reduce(
+    (acc, category) => {
+      acc[category] = category
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      return acc;
+    },
+    {} as Record<ServiceCategory, string>,
+  );
+
+/** Service count per discipline — precomputed so the catalog never re-filters. */
+export const categoryCounts: Record<ServiceCategory, number> = categories.reduce(
+  (acc, category) => {
+    acc[category] = services.filter((s) => s.category === category).length;
+    return acc;
+  },
+  {} as Record<ServiceCategory, number>,
+);
 
 export function getServiceBySlug(slug: string) {
   return services.find((s) => s.slug === slug);

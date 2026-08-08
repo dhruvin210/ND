@@ -17,12 +17,16 @@ class Lead(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     name: Mapped[str] = mapped_column(String(120))
-    company: Mapped[str] = mapped_column(String(160))
+    # Nullable from the consultation form onward — that form does not ask for
+    # company, budget, or timeline. The contact form still supplies all three.
+    company: Mapped[str | None] = mapped_column(String(160), nullable=True)
     email: Mapped[str] = mapped_column(String(254), index=True)
     phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    project_details: Mapped[str] = mapped_column(Text)
-    budget: Mapped[str] = mapped_column(String(40))
-    timeline: Mapped[str] = mapped_column(String(40))
+    project_details: Mapped[str | None] = mapped_column(Text, nullable=True)
+    budget: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    timeline: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    # Which solution the prospect selected on the consultation form.
+    interest: Mapped[str | None] = mapped_column(String(60), nullable=True)
     source: Mapped[str] = mapped_column(String(40), default="website_contact_form")
     hubspot_contact_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(

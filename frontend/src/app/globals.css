@@ -5,21 +5,29 @@
 :root {
   --color-brand: #ff7c00;
   --color-brand-fierce: #ed2f00;
-  --color-background: #0d0d0d;
-  --color-surface: #1a1a1a;
-  --color-surface-elevated: #242424;
+  --color-background: #0a0a0a;
+  --color-surface: #141414;
+  --color-surface-elevated: #1c1c1c;
   --color-text-primary: #ffffff;
-  --color-text-secondary: #aaaaaa;
-  --color-border: #2a2a2a;
+  --color-text-secondary: #a1a1a1;
+  --color-border: #232323;
+
+  /* Header height — sections use it for scroll-margin so anchors land clear. */
+  --header-h: 4.5rem;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* Anchor targets clear the sticky header instead of hiding under it. */
+    scroll-padding-top: calc(var(--header-h) + 1.5rem);
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
+    /* Prevents sub-pixel font weight shifts during transform animations. */
+    text-rendering: optimizeLegibility;
   }
 
   ::selection {
@@ -29,6 +37,16 @@
   /* Accessible focus states — WCAG AA */
   :focus-visible {
     @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-background;
+  }
+
+  /* Headings carry optical tightening at display sizes. */
+  h1,
+  h2 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -44,15 +62,49 @@
 }
 
 @layer components {
-  /* Global max-width container — Design Review fix #1 */
+  /* ---------------------------------------------------------------------- *
+   * Containers
+   * ---------------------------------------------------------------------- */
+
+  /* Default reading container — 1280px. */
   .site-container {
     @apply mx-auto w-full max-w-content px-6 md:px-10;
   }
 
-  /* Standardised section spacing — Design Review fix #4 (80–100px) */
+  /* Wider container for grids and hero content so 1440px+ monitors don't
+   * leave a narrow column of content floating in the middle. */
+  .site-container-wide {
+    @apply mx-auto w-full max-w-wide px-6 md:px-10 xl:px-14;
+  }
+
+  /* Narrow container for long-form reading (FAQ, legal copy). */
+  .site-container-narrow {
+    @apply mx-auto w-full max-w-3xl px-6 md:px-10;
+  }
+
+  /* ---------------------------------------------------------------------- *
+   * Section rhythm
+   * ---------------------------------------------------------------------- */
+
   .section-padding {
     @apply py-20 lg:py-24;
   }
+
+  /* Denser vertical rhythm for the redesigned pages: generous but not empty,
+   * and it scales up rather than stretching on very large screens. */
+  .section-shell {
+    @apply relative py-20 md:py-24 xl:py-28;
+    scroll-margin-top: calc(var(--header-h) + 1rem);
+  }
+
+  /* Full-bleed hairline divider between sections. */
+  .section-divider {
+    @apply h-px w-full border-0 bg-hairline-x;
+  }
+
+  /* ---------------------------------------------------------------------- *
+   * Typography
+   * ---------------------------------------------------------------------- */
 
   .section-heading {
     @apply text-3xl font-bold tracking-tight text-foreground md:text-h2;
@@ -62,12 +114,106 @@
     @apply mt-4 max-w-2xl text-base text-muted;
   }
 
+  /* Display heading used by the redesigned section headers. */
+  .display-heading {
+    @apply text-[2rem] font-bold leading-[1.1] tracking-[-0.02em] text-foreground sm:text-[2.5rem] lg:text-[3rem];
+  }
+
   .eyebrow {
     @apply inline-flex items-center rounded-full border border-brand/40 bg-brand/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand;
+  }
+
+  /* Quieter eyebrow — a label, not a badge. Used across the new sections. */
+  .eyebrow-plain {
+    @apply inline-flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-eyebrow text-brand;
+  }
+
+  /* ---------------------------------------------------------------------- *
+   * Surfaces
+   * ---------------------------------------------------------------------- */
+
+  /* Base premium panel: hairline border, layered dark fill, top-lit sheen. */
+  .panel {
+    @apply relative overflow-hidden rounded-2xl border border-border bg-surface bg-card-sheen;
+  }
+
+  .panel-elevated {
+    @apply relative overflow-hidden rounded-2xl border border-border bg-surface-elevated bg-card-sheen shadow-inset;
+  }
+
+  /* Technology / metadata pill. */
+  .tag-pill {
+    @apply inline-flex items-center rounded-md border border-border-strong bg-surface-elevated px-2.5 py-1 text-[11px] font-medium leading-none tracking-tight text-muted-strong transition-colors duration-200;
+  }
+
+  /* Faint dotted grid — enterprise-infrastructure texture, near-invisible. */
+  .grid-texture {
+    background-image: radial-gradient(
+      rgba(255, 255, 255, 0.055) 1px,
+      transparent 1px
+    );
+    background-size: 32px 32px;
+  }
+
+  /* Masks a decorative layer so it fades out before the section edge. */
+  .fade-mask-b {
+    mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 55%,
+      transparent 100%
+    );
+  }
+
+  .fade-mask-x {
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 12%,
+      black 88%,
+      transparent
+    );
   }
 
   /* Client logo hover — grayscale to colour (Design Review 5b) */
   .logo-hover {
     @apply opacity-60 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0 focus-visible:opacity-100 focus-visible:grayscale-0;
+  }
+}
+
+@layer utilities {
+  /* Cursor-follow spotlight. The card sets --mx/--my from pointer position;
+   * opacity is driven by :hover so there is zero cost when idle. */
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
+    background: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 0%),
+      rgba(255, 124, 0, 0.1),
+      transparent 70%
+    );
+  }
+
+  .spotlight:hover::before,
+  .spotlight:focus-within::before {
+    opacity: 1;
+  }
+
+  /* Gradient text that keeps the orange readable at display sizes. */
+  .text-brand-gradient {
+    @apply bg-gradient-to-br from-[#FFA24D] via-brand to-brand-fierce bg-clip-text text-transparent;
+  }
+
+  /* Hides an element from pointer/AT but keeps it painted (decor layers). */
+  .decor {
+    pointer-events: none;
+    user-select: none;
   }
 }

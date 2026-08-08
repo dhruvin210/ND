@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_solutions_labels",
+  "info": {
+    "displayName": "Label",
+    "icon": "tag",
+    "description": "A single short text entry — used for tags, features, technologies, and benefit lists."
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

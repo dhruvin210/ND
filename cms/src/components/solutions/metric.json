@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_solutions_metrics",
+  "info": {
+    "displayName": "Metric",
+    "icon": "chartBubble",
+    "description": "A headline result figure, e.g. value \"40%\" with label \"Reduction in support workload\"."
+  },
+  "options": {},
+  "attributes": {
+    "value": {
+      "type": "string",
+      "required": true
+    },
+    "label": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

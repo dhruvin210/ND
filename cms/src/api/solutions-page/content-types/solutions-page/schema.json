@@ -1,0 +1,92 @@
+{
+  "kind": "singleType",
+  "collectionName": "solutions_pages",
+  "info": {
+    "singularName": "solutions-page",
+    "pluralName": "solutions-pages",
+    "displayName": "Solutions Page",
+    "description": "Editable copy for the /solutions page: hero, impact statistics, and consultation section."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "heroEyebrow": {
+      "type": "string",
+      "default": "Our Solutions"
+    },
+    "heroHeadingLead": {
+      "type": "string",
+      "default": "AI Solutions Built for"
+    },
+    "heroHeadingHighlight": {
+      "type": "string",
+      "default": "Business Outcomes"
+    },
+    "heroDescription": {
+      "type": "text",
+      "maxLength": 400
+    },
+    "heroSupportingLine": {
+      "type": "text",
+      "maxLength": 240
+    },
+    "heroPrimaryCtaLabel": {
+      "type": "string",
+      "default": "Explore Solutions"
+    },
+    "heroPrimaryCtaHref": {
+      "type": "string",
+      "default": "#solutions-grid"
+    },
+    "heroSecondaryCtaLabel": {
+      "type": "string",
+      "default": "Talk to an AI Expert"
+    },
+    "heroSecondaryCtaHref": {
+      "type": "string",
+      "default": "#consultation"
+    },
+    "stats": {
+      "type": "component",
+      "repeatable": true,
+      "component": "solutions.stat"
+    },
+    "consultationEyebrow": {
+      "type": "string",
+      "default": "Get Started"
+    },
+    "consultationHeadingLead": {
+      "type": "string",
+      "default": "Ready to Build Something"
+    },
+    "consultationHeadingHighlight": {
+      "type": "string",
+      "default": "Exceptional?"
+    },
+    "consultationDescription": {
+      "type": "text",
+      "maxLength": 500
+    },
+    "consultationBenefits": {
+      "type": "component",
+      "repeatable": true,
+      "component": "solutions.label"
+    },
+    "trustBadges": {
+      "type": "component",
+      "repeatable": true,
+      "component": "solutions.label"
+    },
+    "privacyNote": {
+      "type": "text",
+      "maxLength": 240
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    }
+  }
+}

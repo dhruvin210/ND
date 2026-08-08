@@ -14,11 +14,12 @@ async def upsert_contact(
     *,
     email: str,
     name: str,
-    company: str,
+    company: str | None = None,
     phone: str | None = None,
     project_details: str | None = None,
     budget: str | None = None,
     timeline: str | None = None,
+    interest: str | None = None,
     source: str = "website",
 ) -> str | None:
     """Create (or update on conflict) a HubSpot contact. Returns the contact id.
@@ -35,11 +36,12 @@ async def upsert_contact(
         "email": email,
         "firstname": first,
         "lastname": last or "",
-        "company": company,
         "lifecyclestage": "lead",
         "hs_lead_status": "NEW",
         "lead_source": source,
     }
+    if company:
+        properties["company"] = company
     if phone:
         properties["phone"] = phone
     if project_details:
@@ -48,6 +50,8 @@ async def upsert_contact(
         properties["project_budget"] = budget
     if timeline:
         properties["project_timeline"] = timeline
+    if interest:
+        properties["solution_interest"] = interest
 
     headers = {"Authorization": f"Bearer {settings.hubspot_access_token}"}
 

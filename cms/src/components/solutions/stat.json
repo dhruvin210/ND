@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_solutions_stats",
+  "info": {
+    "displayName": "Stat",
+    "icon": "chartCircle",
+    "description": "An animated impact figure. `value` is the number that counts up; prefix and suffix wrap it, e.g. 150 with suffix \"+\"."
+  },
+  "options": {},
+  "attributes": {
+    "value": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "prefix": {
+      "type": "string"
+    },
+    "suffix": {
+      "type": "string"
+    },
+    "label": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { NewsletterSection } from "@/components/layout/NewsletterSection";
 import { SocialSidebar } from "@/components/layout/SocialSidebar";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
 import { Analytics } from "@/components/analytics/Analytics";
@@ -46,7 +47,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0D0D0D",
+  themeColor: "#0A0A0A",
   width: "device-width",
   initialScale: 1,
 };
@@ -66,6 +67,7 @@ export default function RootLayout({
         <Header />
         <SocialSidebar />
         <main id="main">{children}</main>
+        <NewsletterSection />
         <Footer />
         <ChatWidget />
         <Analytics />

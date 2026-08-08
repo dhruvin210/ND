@@ -99,6 +99,53 @@ export function faqPageSchema() {
   };
 }
 
+/** FAQPage built from an arbitrary FAQ list — used by /solutions. */
+export function faqSchemaFrom(items: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  };
+}
+
+/** Service entities for the six AI solutions, linked to their detail pages. */
+export function solutionsSchema(
+  items: { slug: string; title: string; description: string }[],
+) {
+  return items.map((solution) => ({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: solution.title,
+    description: solution.description,
+    url: `${site.url}/solutions/${solution.slug}`,
+    provider: { "@id": `${site.url}/#organization` },
+    areaServed: "Worldwide",
+    serviceType: solution.title,
+    category: "Artificial Intelligence",
+  }));
+}
+
+/** ItemList so the solutions grid is understood as a collection. */
+export function solutionsItemListSchema(
+  items: { slug: string; title: string }[],
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "NextDynamix AI Solutions",
+    itemListElement: items.map((solution, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: solution.title,
+      url: `${site.url}/solutions/${solution.slug}`,
+    })),
+  };
+}
+
 export function servicesSchema() {
   return services.map((service) => ({
     "@context": "https://schema.org",
@@ -110,6 +157,22 @@ export function servicesSchema() {
     areaServed: "Worldwide",
     serviceType: service.title,
   }));
+}
+
+/** ItemList so the /services catalog is understood as a single collection. */
+export function servicesItemListSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "NextDynamix Services",
+    numberOfItems: services.length,
+    itemListElement: services.map((service, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: service.title,
+      url: `${site.url}/services/${service.slug}`,
+    })),
+  };
 }
 
 export function breadcrumbSchema(items: { name: string; url: string }[]) {

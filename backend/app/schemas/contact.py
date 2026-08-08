@@ -30,6 +30,53 @@ class ContactRequest(BaseModel):
         return v
 
 
+ALLOWED_INTERESTS = {
+    "AI Chatbots",
+    "Agentic AI",
+    "Enterprise Search",
+    "Document Intelligence",
+    "Workflow Automation",
+    "Sales AI",
+    "Custom AI Solution",
+    "Other",
+}
+
+ALLOWED_SOURCES = {"solutions_consultation", "solution_detail", "website_contact_form"}
+
+
+class ConsultationRequest(BaseModel):
+    """Lead from the /solutions consultation form.
+
+    Deliberately a separate contract from ContactRequest: this form asks which
+    solution the prospect needs rather than budget and timeline, and company is
+    not collected. Keeping them apart means neither form can silently break the
+    other's validation.
+    """
+
+    name: str = Field(min_length=2, max_length=120)
+    email: EmailStr
+    phone: str = Field(default="", max_length=32)
+    interest: str
+    projectDetails: str = Field(default="", max_length=5000)
+    source: str = Field(default="solutions_consultation", max_length=40)
+    # Honeypot — bots fill this; humans never see it.
+    website: str | None = Field(default=None, max_length=0)
+
+    @field_validator("interest")
+    @classmethod
+    def validate_interest(cls, v: str) -> str:
+        if v not in ALLOWED_INTERESTS:
+            raise ValueError("invalid interest")
+        return v
+
+    @field_validator("source")
+    @classmethod
+    def validate_source(cls, v: str) -> str:
+        if v not in ALLOWED_SOURCES:
+            raise ValueError("invalid source")
+        return v
+
+
 class ContactResponse(BaseModel):
     status: str = "ok"
 

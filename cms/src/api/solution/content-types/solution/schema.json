@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "solutions",
+  "info": {
+    "singularName": "solution",
+    "pluralName": "solutions",
+    "displayName": "Solution",
+    "description": "An AI solution shown on the /solutions page and its own detail page."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "shortDescription": {
+      "type": "text",
+      "required": true,
+      "maxLength": 320
+    },
+    "fullDescription": {
+      "type": "text",
+      "maxLength": 1200
+    },
+    "icon": {
+      "type": "enumeration",
+      "enum": [
+        "chatbot",
+        "agent",
+        "search",
+        "document",
+        "workflow",
+        "sales"
+      ],
+      "default": "agent",
+      "required": true
+    },
+    "tier": {
+      "type": "enumeration",
+      "enum": ["flagship", "standard", "wide"],
+      "default": "standard",
+      "required": true
+    },
+    "order": {
+      "type": "integer",
+      "default": 0,
+      "required": true
+    },
+    "ctaLabel": {
+      "type": "string",
+      "default": "Explore Solution"
+    },
+    "tags": {
+      "type": "component",
+      "repeatable": true,
+      "component": "solutions.label"
+    },
+    "features": {
+      "type": "component",
+      "repeatable": true,
+      "component": "solutions.label"
+    },
+    "technologies": {
+      "type": "component",
+      "repeatable": true,
+      "component": "solutions.label"
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    }
+  }
+}

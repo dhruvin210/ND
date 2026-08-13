@@ -4,7 +4,8 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Star } from "lucide-react";
+import { testimonials } from "@/data/testimonials";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,16 +50,31 @@ const contactSchema = z.object({
 
 type ContactValues = z.infer<typeof contactSchema>;
 
+/** Reuses the testimonial data rather than duplicating a quote in this file. */
+const proof = testimonials[1] ?? testimonials[0];
+
 /** Inline homepage contact form — Design Review "TOP PRIORITY" #11.
  *  Validated with Zod, submitted to FastAPI which forwards to HubSpot. */
 export function ContactSection() {
   const [status, setStatus] = React.useState<"idle" | "ok" | "error">("idle");
+  /** Progressive disclosure — only name + work email are required to advance;
+   *  the rest reveal once those two are valid (Design Review Phase 2 §4). */
+  const [revealed, setRevealed] = React.useState(false);
   const {
     register,
     handleSubmit,
     reset,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<ContactValues>({ resolver: zodResolver(contactSchema) });
+
+  async function handleGetStarted() {
+    const valid = await trigger(["name", "email"]);
+    if (valid) {
+      trackEvent("form_step_advance", { form: "contact" });
+      setRevealed(true);
+    }
+  }
 
   async function onSubmit(values: ContactValues) {
     setStatus("idle");
@@ -93,7 +109,7 @@ export function ContactSection() {
     >
       <div className="site-container">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr]">
-          <div>
+          <div className="flex flex-col">
             <span className="eyebrow">Ready to Start?</span>
             <h2 id="contact-heading" className="section-heading mt-5">
               Build What&apos;s Next
@@ -124,9 +140,34 @@ export function ContactSection() {
                 </dd>
               </div>
             </dl>
-            <p className="mt-8 inline-flex rounded-full border border-brand/40 bg-brand/10 px-5 py-2.5 text-sm font-medium text-brand">
+            <p className="mt-8 inline-flex w-fit rounded-full border border-brand/40 bg-brand/10 px-5 py-2.5 text-sm font-medium text-brand">
               Get a Free Website &amp; AI Readiness Audit — No Commitment
             </p>
+
+            {/* Fills the gap this column used to leave under the form, so both
+             *  sides of the section bottom out at roughly the same height. */}
+            <figure className="mt-8 rounded-2xl border border-border bg-surface p-6 lg:mt-auto">
+              <div
+                className="flex gap-1"
+                role="img"
+                aria-label={`Rated ${proof.rating} out of 5 stars`}
+              >
+                {Array.from({ length: proof.rating }, (_, i) => (
+                  <Star
+                    key={i}
+                    className="h-4 w-4 fill-brand text-brand"
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+              <blockquote className="mt-4 text-sm leading-relaxed text-muted-strong">
+                “{proof.quote}”
+              </blockquote>
+              <figcaption className="mt-4 text-xs text-muted-faint">
+                <span className="font-semibold text-foreground">{proof.name}</span>{" "}
+                · {proof.role}, {proof.company}
+              </figcaption>
+            </figure>
           </div>
 
           <form
@@ -147,17 +188,6 @@ export function ContactSection() {
                 {err("name")}
               </div>
               <div>
-                <Label htmlFor="contact-company">Company *</Label>
-                <Input
-                  id="contact-company"
-                  autoComplete="organization"
-                  className="mt-1.5"
-                  aria-invalid={!!errors.company}
-                  {...register("company")}
-                />
-                {err("company")}
-              </div>
-              <div>
                 <Label htmlFor="contact-email">Work Email *</Label>
                 <Input
                   id="contact-email"
@@ -165,73 +195,96 @@ export function ContactSection() {
                   autoComplete="email"
                   className="mt-1.5"
                   aria-invalid={!!errors.email}
+                  onKeyDown={(e) => {
+                    if (!revealed && e.key === "Enter") {
+                      e.preventDefault();
+                      void handleGetStarted();
+                    }
+                  }}
                   {...register("email")}
                 />
                 {err("email")}
               </div>
-              <div>
-                <Label htmlFor="contact-phone">Phone</Label>
-                <Input
-                  id="contact-phone"
-                  type="tel"
-                  autoComplete="tel"
-                  className="mt-1.5"
-                  aria-invalid={!!errors.phone}
-                  {...register("phone")}
-                />
-                {err("phone")}
-              </div>
-              <div>
-                <Label htmlFor="contact-budget">Budget *</Label>
-                <Select
-                  id="contact-budget"
-                  className="mt-1.5"
-                  defaultValue=""
-                  aria-invalid={!!errors.budget}
-                  {...register("budget")}
-                >
-                  <option value="" disabled>
-                    Select a range
-                  </option>
-                  {budgets.map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
-                  ))}
-                </Select>
-                {err("budget")}
-              </div>
-              <div>
-                <Label htmlFor="contact-timeline">Timeline *</Label>
-                <Select
-                  id="contact-timeline"
-                  className="mt-1.5"
-                  defaultValue=""
-                  aria-invalid={!!errors.timeline}
-                  {...register("timeline")}
-                >
-                  <option value="" disabled>
-                    Select a timeline
-                  </option>
-                  {timelines.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </Select>
-                {err("timeline")}
-              </div>
-              <div className="sm:col-span-2">
-                <Label htmlFor="contact-details">Project Details *</Label>
-                <Textarea
-                  id="contact-details"
-                  placeholder="What are you building? What problem does it solve?"
-                  className="mt-1.5"
-                  aria-invalid={!!errors.projectDetails}
-                  {...register("projectDetails")}
-                />
-                {err("projectDetails")}
-              </div>
+
+              {revealed && (
+                <>
+                  <div>
+                    <Label htmlFor="contact-company">Company *</Label>
+                    <Input
+                      id="contact-company"
+                      autoComplete="organization"
+                      className="mt-1.5"
+                      aria-invalid={!!errors.company}
+                      {...register("company")}
+                    />
+                    {err("company")}
+                  </div>
+                  <div>
+                    <Label htmlFor="contact-phone">Phone</Label>
+                    <Input
+                      id="contact-phone"
+                      type="tel"
+                      autoComplete="tel"
+                      className="mt-1.5"
+                      aria-invalid={!!errors.phone}
+                      {...register("phone")}
+                    />
+                    {err("phone")}
+                  </div>
+                  <div>
+                    <Label htmlFor="contact-budget">Budget *</Label>
+                    <Select
+                      id="contact-budget"
+                      className="mt-1.5"
+                      defaultValue=""
+                      aria-invalid={!!errors.budget}
+                      {...register("budget")}
+                    >
+                      <option value="" disabled>
+                        Select a range
+                      </option>
+                      {budgets.map((b) => (
+                        <option key={b} value={b}>
+                          {b}
+                        </option>
+                      ))}
+                    </Select>
+                    {err("budget")}
+                  </div>
+                  <div>
+                    <Label htmlFor="contact-timeline">Timeline *</Label>
+                    <Select
+                      id="contact-timeline"
+                      className="mt-1.5"
+                      defaultValue=""
+                      aria-invalid={!!errors.timeline}
+                      {...register("timeline")}
+                    >
+                      <option value="" disabled>
+                        Select a timeline
+                      </option>
+                      {timelines.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </Select>
+                    {err("timeline")}
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label htmlFor="contact-details">Project Details *</Label>
+                    <Textarea
+                      id="contact-details"
+                      placeholder="What are you building? What problem does it solve?"
+                      className="mt-1.5"
+                      aria-invalid={!!errors.projectDetails}
+                      {...register("projectDetails")}
+                    />
+                    {err("projectDetails")}
+                  </div>
+                </>
+              )}
+
               {/* Honeypot field — hidden from real users */}
               <input
                 type="text"
@@ -243,14 +296,31 @@ export function ContactSection() {
               />
             </div>
 
-            <Button
-              type="submit"
-              size="lg"
-              className="mt-7 w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Sending…" : "Schedule Consultation →"}
-            </Button>
+            {revealed ? (
+              <>
+                <p className="mt-3 text-xs text-muted-faint">
+                  Company, phone, budget, and timeline help us prep for the
+                  call.
+                </p>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="mt-4 w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending…" : "Schedule Consultation →"}
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="button"
+                size="lg"
+                className="mt-7 w-full"
+                onClick={() => void handleGetStarted()}
+              >
+                Get started →
+              </Button>
+            )}
 
             {status === "ok" && (
               <p

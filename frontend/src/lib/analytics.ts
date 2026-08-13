@@ -4,6 +4,7 @@ type GtagEvent =
   | "cta_click"
   | "form_submit"
   | "form_submit_error"
+  | "form_step_advance"
   | "download"
   | "chatbot_open"
   | "chatbot_message"

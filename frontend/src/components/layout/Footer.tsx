@@ -4,38 +4,62 @@ import { Github, Linkedin, Mail, MapPin, Phone, Twitter } from "lucide-react";
 import { solutions } from "@/data/solutions";
 import { site } from "@/lib/site";
 
-const columns = [
+/** Each column is one or more labelled groups. Splitting the long Services
+ *  list into two stacked groups evens out the footer's bottom edge without
+ *  dropping any links. */
+const columns: {
+  heading: string;
+  groups: { heading?: string; links: { label: string; href: string }[] }[];
+}[] = [
   {
     heading: "Services",
-    links: [
-      { label: "AI Strategy Consulting", href: "/services/ai-strategy-consulting" },
-      { label: "AI Development", href: "/services/ai-development" },
-      { label: "AI Integration", href: "/services/ai-integration" },
-      { label: "Cloud Services", href: "/services" },
-      { label: "Web Development", href: "/services" },
-      { label: "Cyber Security", href: "/services" },
-      { label: "All Services", href: "/services" },
+    groups: [
+      {
+        heading: "Core services",
+        links: [
+          { label: "AI Strategy Consulting", href: "/services/ai-strategy-consulting" },
+          { label: "AI Development", href: "/services/ai-development" },
+          { label: "AI Integration", href: "/services/ai-integration" },
+          { label: "Cloud Services", href: "/services" },
+        ],
+      },
+      {
+        heading: "More services",
+        links: [
+          { label: "Web Development", href: "/services" },
+          { label: "Cyber Security", href: "/services" },
+          { label: "All Services", href: "/services" },
+        ],
+      },
     ],
   },
   {
     heading: "Solutions",
-    links: [
-      ...solutions.map((s) => ({
-        label: s.title,
-        href: `/solutions/${s.slug}`,
-      })),
-      { label: "All Solutions", href: "/solutions" },
+    groups: [
+      {
+        links: [
+          ...solutions.map((s) => ({
+            label: s.title,
+            href: `/solutions/${s.slug}`,
+          })),
+          { label: "All Solutions", href: "/solutions" },
+        ],
+      },
     ],
   },
   {
     heading: "Company",
-    links: [
-      { label: "About Us", href: "/#why-us" },
-      { label: "Case Studies", href: "/#case-studies" },
-      { label: "Our Process", href: "/#process" },
-      { label: "Blog", href: "/blog" },
-      { label: "FAQ", href: "/#faq" },
-      { label: "Contact", href: "/solutions#consultation" },
+    groups: [
+      {
+        links: [
+          { label: "About Us", href: "/#why-us" },
+          { label: "Case Studies", href: "/#case-studies" },
+          { label: "Our Process", href: "/#process" },
+          { label: "Blog", href: "/blog" },
+          { label: "FAQ", href: "/#faq" },
+          { label: "Contact", href: "/solutions#consultation" },
+        ],
+      },
     ],
   },
 ];
@@ -133,21 +157,25 @@ export function Footer() {
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-3 lg:gap-10 xl:gap-16">
             {columns.map((col) => (
               <nav key={col.heading} aria-label={col.heading}>
-                <h2 className="text-[11px] font-semibold uppercase tracking-eyebrow text-muted-faint">
-                  {col.heading}
-                </h2>
-                <ul className="mt-5 space-y-3">
-                  {col.links.map((link) => (
-                    <li key={`${col.heading}-${link.label}`}>
-                      <Link
-                        href={link.href}
-                        className="text-sm text-muted transition-colors duration-200 hover:text-brand"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                {col.groups.map((group, gi) => (
+                  <div key={group.heading ?? col.heading} className={gi > 0 ? "mt-7" : undefined}>
+                    <h2 className="text-[11px] font-semibold uppercase tracking-eyebrow text-muted-faint">
+                      {group.heading ?? col.heading}
+                    </h2>
+                    <ul className="mt-5 space-y-3">
+                      {group.links.map((link) => (
+                        <li key={`${col.heading}-${link.label}`}>
+                          <Link
+                            href={link.href}
+                            className="text-sm text-muted transition-colors duration-200 hover:text-brand"
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </nav>
             ))}
           </div>

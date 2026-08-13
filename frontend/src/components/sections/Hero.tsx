@@ -6,12 +6,25 @@ import { Layers, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ParticleField } from "@/components/sections/ParticleField";
 import { heroStats } from "@/data/stats";
+import { site } from "@/lib/site";
 import { trackCta } from "@/lib/analytics";
 
 const featureCards = [
-  { icon: Layers, label: "Strategy to Launch" },
-  { icon: ShieldCheck, label: "Secure & Scalable Systems" },
-  { icon: Sparkles, label: "Web, Mobile, Cloud & AI" },
+  {
+    icon: Layers,
+    label: "Strategy to launch",
+    detail: "Roadmap to shipped product",
+  },
+  {
+    icon: ShieldCheck,
+    label: "Secure and scalable",
+    detail: "SOC 2 aligned architecture",
+  },
+  {
+    icon: Sparkles,
+    label: "Web, mobile, cloud, AI",
+    detail: "One team, every layer",
+  },
 ];
 
 const fadeUp = {
@@ -43,11 +56,11 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="mt-6 max-w-xl text-4xl font-bold leading-[1.1] tracking-tight md:text-h1 lg:text-display"
             >
-              Custom Digital Solutions &amp; Technology Services That{" "}
+              We built Charwaha and LaunchGrid. We can build{" "}
               <span className="bg-brand-gradient bg-clip-text text-transparent">
-                Transform
-              </span>{" "}
-              Business
+                yours next
+              </span>
+              .
             </motion.h1>
 
             <motion.p
@@ -55,27 +68,40 @@ export function Hero() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="mt-6 max-w-lg text-base leading-relaxed text-muted md:text-lg"
             >
-              We design, build, and scale web, mobile, cloud, and AI-powered
-              solutions for forward-thinking companies — from strategy to
-              launch.
+              Real products shipped, not just client work. Web, mobile, cloud
+              and AI — from strategy to launch.
             </motion.p>
 
+            {/* Single primary CTA — "View Services" and "Free Audit" now live
+             *  in the nav/footer instead of competing here (Design Review
+             *  Phase 2 §2 CTA hierarchy). */}
             <motion.div
               {...fadeUp}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-8 flex flex-wrap gap-4"
+              className="mt-8 flex flex-wrap items-center gap-4"
             >
               <Button asChild size="lg" onClick={() => trackCta("Schedule Consultation", "hero")}>
                 <Link href="#contact">Schedule Consultation →</Link>
               </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="secondary"
-                onClick={() => trackCta("View Services", "hero")}
-              >
-                <Link href="#services">View Services</Link>
-              </Button>
+            </motion.div>
+
+            <motion.div
+              {...fadeUp}
+              transition={{ duration: 0.5, delay: 0.35 }}
+              className="mt-6 flex items-center gap-2 border-t border-border pt-6 text-sm text-muted"
+            >
+              <span>
+                <span className="font-semibold text-foreground">4.9/5</span> on{" "}
+                <a
+                  href={site.clutchUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-brand hover:underline"
+                >
+                  Clutch
+                </a>{" "}
+                · 47 verified reviews
+              </span>
             </motion.div>
 
             <motion.dl
@@ -100,22 +126,30 @@ export function Hero() {
             </motion.dl>
           </div>
 
-          <div className="hidden flex-col gap-5 lg:flex" aria-hidden="true">
-            {featureCards.map(({ icon: Icon, label }, i) => (
-              <motion.div
+          {/* One connected panel, not three floating tiles — each capability is
+           *  a row with a brand accent rail and a supporting line. */}
+          <motion.div
+            initial={{ opacity: 0, x: 32 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="hidden divide-y divide-border rounded-2xl border border-brand/50 bg-surface/90 p-6 shadow-brand-glow backdrop-blur lg:block"
+            aria-hidden="true"
+          >
+            {featureCards.map(({ icon: Icon, label, detail }) => (
+              <div
                 key={label}
-                initial={{ opacity: 0, x: 32 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 + i * 0.15 }}
-                className="flex items-center gap-4 rounded-2xl border border-border bg-surface/90 p-6 shadow-card backdrop-blur transition-colors hover:border-brand/40"
+                className="flex items-start gap-4 border-l-2 border-l-brand py-5 pl-5 pr-1 first:pt-3 last:pb-3"
               >
-                <span className="rounded-xl bg-surface-elevated p-3 text-brand">
-                  <Icon className="h-6 w-6" />
-                </span>
-                <span className="font-semibold">{label}</span>
-              </motion.div>
+                <Icon className="mt-0.5 h-6 w-6 shrink-0 text-brand" />
+                <div>
+                  <p className="text-base font-semibold leading-snug text-foreground">
+                    {label}
+                  </p>
+                  <p className="mt-1.5 text-sm text-muted">{detail}</p>
+                </div>
+              </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

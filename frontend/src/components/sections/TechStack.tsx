@@ -24,11 +24,13 @@ export function TechStack() {
               className="rounded-2xl border border-border bg-surface p-6 transition-colors hover:border-brand/40"
             >
               <h3 className="font-semibold text-foreground">{category.name}</h3>
-              <ul className="mt-4 flex flex-wrap gap-2">
+              {/* Fixed columns, not flex-wrap: auto-width pills left every row
+               *  a different ragged length across the five cards. */}
+              <ul className="mt-4 grid grid-cols-2 gap-2">
                 {category.technologies.map((tech) => (
                   <li
                     key={tech}
-                    className="rounded-full border border-border bg-surface-elevated px-3.5 py-1.5 text-xs font-medium text-muted transition-colors hover:border-brand/50 hover:text-foreground"
+                    className="rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-center text-xs font-medium text-muted transition-colors hover:border-brand/50 hover:text-foreground"
                   >
                     {tech}
                   </li>

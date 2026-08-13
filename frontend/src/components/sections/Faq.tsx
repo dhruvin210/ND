@@ -8,6 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { faqs } from "@/data/faqs";
+import { heroStats } from "@/data/stats";
 import { trackEvent } from "@/lib/analytics";
 
 /** FAQ — accordion structure preserved exactly (Design Review SEO Risk #2:
@@ -29,6 +30,9 @@ export function Faq() {
         <Accordion
           type="single"
           collapsible
+          /* Q1 open on load: gives the section an anchor instead of a wall of
+           * collapsed rows, and puts real answer text on screen immediately. */
+          defaultValue={faqs[0]?.question}
           className="mt-12 space-y-4"
           onValueChange={(value) => {
             if (value) trackEvent("faq_open", { question: value });
@@ -46,6 +50,20 @@ export function Faq() {
             </AccordionItem>
           ))}
         </Accordion>
+
+        {/* Closes the dead space between the last collapsed question and the
+         *  contact CTA below — proof points instead of empty black. */}
+        <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-4">
+          {heroStats.map((stat) => (
+            <div key={stat.label} className="bg-surface px-4 py-6 text-center">
+              <dt className="sr-only">{stat.label}</dt>
+              <dd className="text-2xl font-bold text-foreground">{stat.value}</dd>
+              <dd className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-brand">
+                {stat.label}
+              </dd>
+            </div>
+          ))}
+        </dl>
 
         <p className="mt-10 text-center text-sm text-muted">
           Have more questions?{" "}

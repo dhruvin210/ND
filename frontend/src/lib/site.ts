@@ -10,6 +10,8 @@ export const site = {
     "NextDynamix is an AI-first software development and technology consulting company. We design, build, and scale web, mobile, cloud, and AI-powered solutions for forward-thinking companies, from strategy to launch.",
   email: "hello@nextdynamix.com",
   phone: "+1 (555) 123-4567",
+  /** TODO: replace with the real Clutch profile URL. */
+  clutchUrl: "#",
   address: {
     street: "100 Innovation Drive, Suite 400",
     city: "Austin",

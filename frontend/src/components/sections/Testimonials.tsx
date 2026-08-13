@@ -56,11 +56,11 @@ export function Testimonials() {
             We build long-term partnerships through reliable delivery and
             thoughtful execution.
           </p>
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-5 py-2 text-sm text-foreground"></div>
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-5 py-2 text-sm text-foreground">
             <Stars rating={5} />
             Rated {reviewSummary.rating}/5 based on {reviewSummary.count}{" "}
             reviews · {reviewSummary.sources}
-          
+          </div>
         </div>
 
         <ul className="mt-12 grid gap-6 md:grid-cols-3">

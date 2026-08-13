@@ -125,7 +125,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-premium",
+        "fixed inset-x-0 top-0 z-[60] transition-all duration-300 ease-premium",
         scrolled || mobileOpen
           ? "border-b border-border bg-background/70 backdrop-blur-xl backdrop-saturate-150"
           : "border-b border-transparent bg-transparent",
@@ -454,7 +454,7 @@ export function Header() {
         <nav
           id="mobile-nav"
           aria-label="Mobile navigation"
-          className="max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-border bg-background lg:hidden"
+          className="min-h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-border bg-background lg:hidden"
         >
           <ul className="px-6 py-4">
             {navLinks.map((link) => {

@@ -7,6 +7,7 @@ import { SocialSidebar } from "@/components/layout/SocialSidebar";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
 import { Analytics } from "@/components/analytics/Analytics";
 import { site } from "@/lib/site";
+import { buildMetadata } from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,13 +16,19 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const homeMetadata = buildMetadata({
+  title: `${site.name} — ${site.tagline}`,
+  description: site.description,
+  path: "/",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
+  ...homeMetadata,
   title: {
     default: `${site.name} — ${site.tagline}`,
     template: `%s | ${site.name}`,
   },
-  description: site.description,
   keywords: [
     "AI agent development",
     "generative AI solutions",

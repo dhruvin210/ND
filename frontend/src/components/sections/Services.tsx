@@ -1,35 +1,24 @@
-"use client";
-import Link from "next/link";
-import { motion } from "framer-motion";
+﻿import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { services } from "@/data/services";
+import { Reveal } from "@/components/ui/reveal";
+import { getServices } from "@/lib/cms";
+import { resolveServiceIcon } from "@/lib/service-icons";
 import { cn } from "@/lib/utils";
-/** Digital Solutions grid — a curated preview of 8 services on the homepage.
- *  Full catalog lives on /services. Never a carousel: hidden slider content
- *  is not reliably indexed by Google (Design Review SEO Risk #1). */
 
-/** Hand-picked preview, one per discipline where possible. Ordered so the two
- *  AI cards lead — the section headline sells "AI-first", so the grid has to
- *  show it rather than opening with seven security cards. */
-const featuredSlugs = [
-  "ai-development",
-  "ai-engagement",
-  "ai-strategy-consulting",
-  "cloud-security-solutions",
-  "aws-cloud-services",
-  "next-js-development",
-  "cross-platform-app-development",
-  "penetration-testing",
-] as const;
+/** Solution-area preview grid — CMS-driven, straight from the `Service`
+ *  collection. Full set lives on /services. Never a carousel: hidden
+ *  slider content is not reliably indexed by Google (Design Review SEO
+ *  Risk #1). */
 
-/** The AI tier carries the positioning, so it gets the only accent treatment.
- *  Keep this at two — a third badge flattens the hierarchy it creates. */
-const coreSlugs = new Set<string>(["ai-development", "ai-engagement"]);
+/** The first two entries carry the "AI-first" positioning, so they get the
+ *  only accent treatment — keep this at two, a third badge flattens the
+ *  hierarchy it creates. */
+const CORE_COUNT = 2;
 
-export function Services() {
-  const featured = featuredSlugs
-    .map((slug) => services.find((s) => s.slug === slug))
-    .filter((s): s is (typeof services)[number] => Boolean(s));
+export async function Services() {
+  const services = await getServices();
+  const featured = services.slice(0, 8);
+
   return (
     <section
       id="services"
@@ -47,18 +36,12 @@ export function Services() {
         </p>
         <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((service, i) => {
-            const Icon = service.icon;
-            const isCore = coreSlugs.has(service.slug);
+            const Icon = resolveServiceIcon(service.icon);
+            const isCore = i < CORE_COUNT;
             return (
-              <motion.li
-                key={service.slug}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.4, delay: (i % 4) * 0.08 }}
-              >
+              <Reveal key={service.slug} as="li" delay={(i % 4) * 0.08}>
                 <Link
-                  href={`/services/${service.slug}`}
+                  href={`/services/${service.slug}/`}
                   className={cn(
                     "group relative flex h-full flex-col rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand/60 hover:shadow-brand-glow",
                     isCore
@@ -85,14 +68,14 @@ export function Services() {
                     {service.title}
                   </h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">
-                    {service.description}
+                    {service.shortDescription}
                   </p>
                   <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     Learn more
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </span>
                 </Link>
-              </motion.li>
+              </Reveal>
             );
           })}
         </ul>

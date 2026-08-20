@@ -503,3 +503,154 @@ export async function getAllArticleSlugs(): Promise<
     ? res.data.map((a) => ({ slug: a.slug, updatedAt: a.updatedAt }))
     : [];
 }
+
+/* ------------------------- Services (pillar pages) ------------------------- */
+/** The 11 CMS-authored service landing pages (Generative AI, Cloud
+ *  Consulting, etc). Distinct from the 48-item static catalog in
+ *  `data/services.ts` — these have their own rich hero, offerings,
+ *  capabilities, why-choose-us, and FAQ content straight from the CMS. */
+
+export interface ServiceMetric {
+  value: string;
+  label: string;
+}
+
+export interface ServiceOffering {
+  title: string;
+  description: string;
+}
+
+export interface ServiceCapabilityGroup {
+  groupLabel: string;
+  items: string[];
+}
+
+export interface ServiceReason {
+  title: string;
+  description: string;
+}
+
+export interface ServiceFaq {
+  question: string;
+  answer: string;
+}
+
+export interface PillarService {
+  slug: string;
+  title: string;
+  category: string;
+  shortDescription: string;
+  icon?: string;
+  order: number;
+  heroEyebrow?: string;
+  heroHeading: string;
+  heroDescription: string;
+  heroPrimaryCtaLabel: string;
+  heroPrimaryCtaHref: string;
+  heroSecondaryCtaLabel?: string;
+  heroSecondaryCtaHref?: string;
+  trustMetrics: ServiceMetric[];
+  offerings: ServiceOffering[];
+  capabilities: ServiceCapabilityGroup[];
+  whyChooseUs: ServiceReason[];
+  faqs: ServiceFaq[];
+}
+
+interface StrapiService {
+  documentId?: string;
+  title: string;
+  slug: string;
+  category: string;
+  shortDescription: string;
+  icon?: string;
+  order?: number;
+  heroEyebrow?: string;
+  heroHeading: string;
+  heroDescription: string;
+  heroPrimaryCtaLabel?: string;
+  heroPrimaryCtaHref?: string;
+  heroSecondaryCtaLabel?: string;
+  heroSecondaryCtaHref?: string;
+  trustMetrics?: { value: string; label: string }[];
+  offerings?: { title: string; description: string }[];
+  capabilities?: { groupLabel: string; item: string }[];
+  whyChooseUs?: { title: string; description: string }[];
+  faqs?: { question: string; answer: string; order?: number }[];
+}
+
+/** Groups the flat `{ groupLabel, item }` repeatable component into
+ *  `{ groupLabel, items[] }` for easier rendering. */
+function groupCapabilities(
+  items?: { groupLabel: string; item: string }[],
+): ServiceCapabilityGroup[] {
+  if (!items?.length) return [];
+  const groups = new Map<string, string[]>();
+  for (const { groupLabel, item } of items) {
+    if (!groups.has(groupLabel)) groups.set(groupLabel, []);
+    groups.get(groupLabel)!.push(item);
+  }
+  return Array.from(groups.entries()).map(([groupLabel, groupItems]) => ({
+    groupLabel,
+    items: groupItems,
+  }));
+}
+
+function mapService(s: StrapiService): PillarService {
+  return {
+    slug: s.slug,
+    title: s.title,
+    category: s.category,
+    shortDescription: s.shortDescription,
+    icon: s.icon,
+    order: s.order ?? 0,
+    heroEyebrow: s.heroEyebrow,
+    heroHeading: s.heroHeading,
+    heroDescription: s.heroDescription,
+    heroPrimaryCtaLabel: s.heroPrimaryCtaLabel ?? "Book a Free Consultation",
+    heroPrimaryCtaHref: s.heroPrimaryCtaHref ?? "#lead-form",
+    heroSecondaryCtaLabel: s.heroSecondaryCtaLabel,
+    heroSecondaryCtaHref: s.heroSecondaryCtaHref,
+    trustMetrics: s.trustMetrics ?? [],
+    offerings: s.offerings ?? [],
+    capabilities: groupCapabilities(s.capabilities),
+    whyChooseUs: s.whyChooseUs ?? [],
+    faqs: (s.faqs ?? [])
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((f) => ({ question: f.question, answer: f.answer })),
+  };
+}
+
+/** All 11 pillar service pages, ordered for the catalog. Returns an empty
+ *  array (never throws) if the CMS is unreachable or nothing is published
+ *  yet — callers should treat an empty list as "fall back to the static
+ *  48-item catalog". */
+export async function getServices(): Promise<PillarService[]> {
+  const res = await strapiFetch<StrapiService>("services", {
+    "pagination[pageSize]": "50",
+    sort: "order:asc",
+    populate: "*",
+  });
+  if (!res) return [];
+  return res.data.map(mapService);
+}
+
+export async function getServiceBySlug(
+  slug: string,
+): Promise<PillarService | null> {
+  const res = await strapiFetch<StrapiService>("services", {
+    "filters[slug][$eq]": slug,
+    populate: "*",
+  });
+  if (!res || res.data.length === 0) return null;
+  return mapService(res.data[0]);
+}
+
+export async function getAllPillarServiceSlugs(): Promise<string[]> {
+  const res = await strapiFetch<StrapiService>("services", {
+    "pagination[pageSize]": "50",
+    fields: "slug",
+  });
+  return res ? res.data.map((s) => s.slug) : [];
+}
+

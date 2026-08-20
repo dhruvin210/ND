@@ -1,4 +1,4 @@
-import { Hero } from "@/components/sections/Hero";
+﻿import { Hero } from "@/components/sections/Hero";
 import { TrustedBy } from "@/components/sections/TrustedBy";
 import { Services } from "@/components/sections/Services";
 import { WhyChoose } from "@/components/sections/WhyChoose";
@@ -15,14 +15,17 @@ import {
   localBusinessSchema,
   webSiteSchema,
   faqPageSchema,
-  servicesSchema,
+  pillarServicesSchema,
   jsonLd,
 } from "@/lib/schema";
+import { getServices } from "@/lib/cms";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const pillarServices = await getServices();
+
   return (
     <>
-      {/* Structured data: Organization, LocalBusiness, WebSite, FAQPage, Service×8 */}
+      {/* Structured data: Organization, LocalBusiness, WebSite, FAQPage, Service x N */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={jsonLd([
@@ -30,7 +33,7 @@ export default function HomePage() {
           localBusinessSchema(),
           webSiteSchema(),
           faqPageSchema(),
-          ...servicesSchema(),
+          ...pillarServicesSchema(pillarServices),
         ])}
       />
       <Hero />

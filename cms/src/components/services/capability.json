@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_services_capabilities",
+  "info": {
+    "displayName": "Capability",
+    "icon": "layer",
+    "description": "One bullet item under a capability group, e.g. groupLabel 'ServiceNow Business Solutions', item 'IT Service Management (ITSM)'."
+  },
+  "options": {},
+  "attributes": {
+    "groupLabel": {
+      "type": "string",
+      "required": true
+    },
+    "item": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

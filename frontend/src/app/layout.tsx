@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -6,6 +6,7 @@ import { NewsletterSection } from "@/components/layout/NewsletterSection";
 import { SocialSidebar } from "@/components/layout/SocialSidebar";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
 import { Analytics } from "@/components/analytics/Analytics";
+import { getServices } from "@/lib/cms";
 import { site } from "@/lib/site";
 import { buildMetadata } from "@/lib/seo";
 import "./globals.css";
@@ -17,7 +18,7 @@ const inter = Inter({
 });
 
 const homeMetadata = buildMetadata({
-  title: `${site.name} — ${site.tagline}`,
+  title: site.name + " — " + site.tagline,
   description: site.description,
   path: "/",
 });
@@ -26,8 +27,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   ...homeMetadata,
   title: {
-    default: `${site.name} — ${site.tagline}`,
-    template: `%s | ${site.name}`,
+    default: site.name + " — " + site.tagline,
+    template: "%s | " + site.name,
   },
   keywords: [
     "AI agent development",
@@ -59,9 +60,11 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const pillarServices = await getServices();
+
   return (
     <html lang="en" className={inter.variable}>
       <body>
@@ -71,7 +74,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <Header />
+        <Header pillarServices={pillarServices} />
         <SocialSidebar />
         <main id="main">{children}</main>
         <NewsletterSection />
@@ -82,3 +85,4 @@ export default function RootLayout({
     </html>
   );
 }
+

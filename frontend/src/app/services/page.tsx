@@ -1,29 +1,30 @@
 import { ContactSection } from "@/components/sections/ContactSection";
-import { ServicesCatalogSection } from "@/components/services/ServicesCatalogSection";
 import { ServicesFaq } from "@/components/services/ServicesFaq";
 import { ServicesHero } from "@/components/services/ServicesHero";
+import { PillarServicesShowcase } from "@/components/services/PillarServicesShowcase";
 import { ServicesProcess } from "@/components/services/ServicesProcess";
 import { ServicesStats } from "@/components/services/ServicesStats";
 import { WhyServices } from "@/components/services/WhyServices";
-import { servicesFaqs } from "@/data/services-page";
+import { getServices } from "@/lib/cms";
 import {
   breadcrumbSchema,
-  faqSchemaFrom,
   jsonLd,
-  servicesItemListSchema,
-  servicesSchema,
+  pillarServicesItemListSchema,
+  pillarServicesSchema,
 } from "@/lib/schema";
 import { buildMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 
 export const metadata = buildMetadata({
-  title: "Services — Cyber Security, AI, Cloud, Development & More",
+  title: "Services — Generative AI, Cloud, Enterprise Software & More",
   description:
-    "Explore NextDynamix's full range of services across Cyber Security, Generative AI, Cloud, Web & App Development, CMS, Digital Marketing, and Design.",
+    "Explore NextDynamix's solution areas across Generative AI, Cloud Consulting, Enterprise Software, Mobile, Digital Marketing, and more — every page CMS-managed.",
   path: "/services",
 });
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const pillarServices = await getServices();
+
   return (
     <>
       <script
@@ -33,17 +34,17 @@ export default function ServicesPage() {
             { name: "Home", url: site.url },
             { name: "Services", url: `${site.url}/services` },
           ]),
-          servicesItemListSchema(),
-          faqSchemaFrom(servicesFaqs),
-          ...servicesSchema(),
+          pillarServicesItemListSchema(pillarServices),
+          ...pillarServicesSchema(pillarServices),
         ])}
       />
 
-      {/* Positioning → scale → the catalog itself → how we engage → why one
-          partner → objections → contact. */}
+      {/* Positioning → scale → the solution areas → how we engage → why one
+          partner → objections → contact. Every section below the hero is
+          CMS-driven — nothing here is a hardcoded catalog anymore. */}
       <ServicesHero />
       <ServicesStats />
-      <ServicesCatalogSection />
+      <PillarServicesShowcase />
       <ServicesProcess />
       <WhyServices />
       <ServicesFaq />

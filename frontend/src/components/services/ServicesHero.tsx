@@ -6,7 +6,7 @@ import { CapabilityOrbit } from "@/components/services/CapabilityOrbit";
  * Services catalog hero. Fully server-rendered — the entrance is CSS-only, so
  * there is no hydration cost or layout shift above the fold.
  */
-export function ServicesHero() {
+export async function ServicesHero() {
   return (
     <section
       aria-labelledby="services-hero-heading"
@@ -66,9 +66,9 @@ export function ServicesHero() {
               className="animate-reveal-up mt-7 max-w-xl text-base leading-relaxed text-muted-strong md:text-lg"
               style={{ animationDelay: "0.2s" }}
             >
-              Forty-eight services across eight disciplines — security, AI,
-              cloud, engineering, commerce, mobile, marketing, and design — run
-              by one team under one delivery standard.
+              Eleven dedicated solution areas — Generative AI, Cloud, Enterprise
+              Software, Mobile, Marketing, and more — each run by one team
+              under one delivery standard.
             </p>
 
             <p
@@ -84,10 +84,10 @@ export function ServicesHero() {
               style={{ animationDelay: "0.32s" }}
             >
               <Link
-                href="#catalog"
+                href="#solution-areas"
                 className="group inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand px-7 text-sm font-semibold text-white transition-all duration-300 ease-premium hover:bg-brand-fierce hover:shadow-lift-brand"
               >
-                Browse the catalog
+                Browse solution areas
                 <ArrowRight
                   aria-hidden="true"
                   className="h-4 w-4 transition-transform duration-300 ease-premium group-hover:translate-x-1"

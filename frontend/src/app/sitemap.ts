@@ -1,7 +1,6 @@
-import type { MetadataRoute } from "next";
+﻿import type { MetadataRoute } from "next";
 import { site } from "@/lib/site";
-import { services } from "@/data/services";
-import { getAllArticleSlugs, getSolutions } from "@/lib/cms";
+import { getAllArticleSlugs, getServices, getSolutions } from "@/lib/cms";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -15,7 +14,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${site.url}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 
-  const servicePages: MetadataRoute.Sitemap = services.map((s) => ({
+  const pillarServices = await getServices();
+  const servicePages: MetadataRoute.Sitemap = pillarServices.map((s) => ({
     url: `${site.url}/services/${s.slug}`,
     lastModified: now,
     changeFrequency: "monthly",

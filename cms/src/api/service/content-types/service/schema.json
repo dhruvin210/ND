@@ -1,0 +1,118 @@
+﻿{
+  "kind": "collectionType",
+  "collectionName": "services",
+  "info": {
+    "singularName": "service",
+    "pluralName": "services",
+    "displayName": "Service",
+    "description": "A single service - powers its catalog card on /services and its own /services/[slug] detail page."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "Cyber Security",
+        "Generative AI",
+        "Cloud Services",
+        "Web Development",
+        "CMS & Ecommerce",
+        "App Development",
+        "Digital Marketing",
+        "Designing",
+        "Enterprise Software",
+        "Data & BI",
+        "IT Staff Augmentation"
+      ],
+      "required": true
+    },
+    "shortDescription": {
+      "type": "text",
+      "required": true,
+      "maxLength": 320
+    },
+    "icon": {
+      "type": "string",
+      "required": false
+    },
+    "order": {
+      "type": "integer",
+      "default": 0,
+      "required": true
+    },
+    "heroEyebrow": {
+      "type": "string"
+    },
+    "heroHeading": {
+      "type": "string",
+      "required": true
+    },
+    "heroDescription": {
+      "type": "text",
+      "maxLength": 800,
+      "required": true
+    },
+    "heroPrimaryCtaLabel": {
+      "type": "string",
+      "default": "Book a Free Consultation"
+    },
+    "heroPrimaryCtaHref": {
+      "type": "string",
+      "default": "#consultation"
+    },
+    "heroSecondaryCtaLabel": {
+      "type": "string"
+    },
+    "heroSecondaryCtaHref": {
+      "type": "string"
+    },
+    "ctaBand": {
+      "type": "component",
+      "repeatable": false,
+      "component": "services.cta-band"
+    },
+    "trustMetrics": {
+      "type": "component",
+      "repeatable": true,
+      "component": "solutions.metric"
+    },
+    "offerings": {
+      "type": "component",
+      "repeatable": true,
+      "component": "services.offering"
+    },
+    "capabilities": {
+      "type": "component",
+      "repeatable": true,
+      "component": "services.capability"
+    },
+    "whyChooseUs": {
+      "type": "component",
+      "repeatable": true,
+      "component": "services.reason"
+    },
+    "faqs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::faq.faq",
+      "mappedBy": "service"
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    }
+  }
+}

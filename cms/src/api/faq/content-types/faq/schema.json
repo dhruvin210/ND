@@ -30,6 +30,12 @@
       "type": "integer",
       "default": 0,
       "required": true
+    },
+    "service": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::service.service",
+      "inversedBy": "faqs"
     }
   }
 }

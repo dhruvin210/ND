@@ -1,6 +1,5 @@
 import { site } from "@/lib/site";
 import { faqs } from "@/data/faqs";
-import { services } from "@/data/services";
 import { reviewSummary } from "@/data/testimonials";
 
 /** JSON-LD builders — Organization, LocalBusiness, WebSite, FAQPage, Service,
@@ -146,12 +145,17 @@ export function solutionsItemListSchema(
   };
 }
 
-export function servicesSchema() {
-  return services.map((service) => ({
+/** Service + ItemList schema for the CMS-driven /services page. Takes
+ *  already-fetched pillar services rather than fetching again, so callers
+ *  should pass the result of `getServices()`. */
+export function pillarServicesSchema(
+  pillarServices: { title: string; shortDescription: string; slug: string }[],
+) {
+  return pillarServices.map((service) => ({
     "@context": "https://schema.org",
     "@type": "Service",
     name: service.title,
-    description: service.description,
+    description: service.shortDescription,
     url: `${site.url}/services/${service.slug}`,
     provider: { "@id": `${site.url}/#organization` },
     areaServed: "Worldwide",
@@ -160,13 +164,15 @@ export function servicesSchema() {
 }
 
 /** ItemList so the /services catalog is understood as a single collection. */
-export function servicesItemListSchema() {
+export function pillarServicesItemListSchema(
+  pillarServices: { title: string; slug: string }[],
+) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "NextDynamix Services",
-    numberOfItems: services.length,
-    itemListElement: services.map((service, i) => ({
+    numberOfItems: pillarServices.length,
+    itemListElement: pillarServices.map((service, i) => ({
       "@type": "ListItem",
       position: i + 1,
       name: service.title,

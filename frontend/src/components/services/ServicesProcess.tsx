@@ -25,7 +25,7 @@ export function ServicesProcess() {
               Whatever You Hire Us For
             </>
           }
-          description="Forty-eight services, one delivery model. You always know what the next milestone is, who is on it, and what it costs before it starts."
+          description="Eleven solution areas, one delivery model. You always know what the next milestone is, who is on it, and what it costs before it starts."
         />
 
         <div className="relative mt-16 lg:mt-20">

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import Link from "next/link";
@@ -13,16 +13,8 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import {
-  categories,
-  categoryAnchors,
-  categoryBlurbs,
-  categoryCounts,
-  categoryIcons,
-  services,
-  servicesByCategory,
-  type ServiceCategory,
-} from "@/data/services";
+import { resolveServiceIcon } from "@/lib/service-icons";
+import type { PillarService } from "@/lib/cms";
 import { solutionIcons, solutions } from "@/data/solutions";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -33,7 +25,7 @@ interface NavLink {
   label: string;
   /** Route prefix that marks this item active. */
   match?: string;
-  /** Two-pane discipline → service panel. Mutually exclusive with `children`. */
+  /** Two-pane discipline -> service panel. Mutually exclusive with `children`. */
   mega?: boolean;
   children?: {
     href: string;
@@ -53,7 +45,7 @@ const navLinks: NavLink[] = [
     children: solutions.map((s) => ({
       href: `/solutions/${s.slug}`,
       label: s.title,
-      description: s.tags.slice(0, 2).join(" · "),
+      description: s.tags.slice(0, 2).join(" . "),
       icon: solutionIcons[s.icon],
     })),
   },
@@ -67,12 +59,25 @@ const navLinks: NavLink[] = [
  * Sticky navigation. Transparent at the top of the page, glass with a hairline
  * border once scrolled. The active top-level route is marked in brand orange.
  */
-export function Header() {
+export function Header({ pillarServices }: { pillarServices: PillarService[] }) {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [openMenu, setOpenMenu] = React.useState<string | null>(null);
-  const [megaCategory, setMegaCategory] = React.useState<ServiceCategory>(
-    categories[0],
+
+  // Derived once per render from the (small, 11-item) CMS list -- cheap
+  // enough not to need memoisation, and it keeps the mega menu in sync with
+  // whatever is published in Strapi without a second fetch.
+  const categories = Array.from(new Set(pillarServices.map((s) => s.category)));
+  const servicesByCategory = categories.reduce<Record<string, PillarService[]>>(
+    (acc, category) => {
+      acc[category] = pillarServices.filter((s) => s.category === category);
+      return acc;
+    },
+    {},
+  );
+
+  const [megaCategory, setMegaCategory] = React.useState<string>(
+    categories[0] ?? "",
   );
   const closeTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
@@ -146,7 +151,7 @@ export function Header() {
           />
         </Link>
 
-        {/* ----------------------------- Desktop nav ----------------------------- */}
+        {/* Desktop nav */}
         <nav aria-label="Main navigation" className="ml-auto hidden lg:block">
           <ul className="flex items-center gap-1">
             {navLinks.map((link) => {
@@ -157,8 +162,6 @@ export function Header() {
               return (
                 <li
                   key={link.label}
-                  // The mega panel is far wider than its trigger, so it anchors
-                  // to the fixed header instead of the item.
                   className={cn(!link.mega && "relative")}
                   onMouseEnter={() => {
                     cancelClose();
@@ -188,7 +191,6 @@ export function Header() {
                         )}
                       />
                     )}
-                    {/* Active underline */}
                     <span
                       aria-hidden="true"
                       className={cn(
@@ -198,29 +200,24 @@ export function Header() {
                     />
                   </Link>
 
-                  {/* Services mega menu — disciplines on the left, the
-                      hovered discipline's services on the right. */}
                   {link.mega && menuOpen && (
                     <div
                       onMouseEnter={cancelClose}
                       onMouseLeave={scheduleClose}
                       className="absolute left-1/2 top-full w-[min(64rem,calc(100vw-3rem))] -translate-x-1/2 pt-3"
                     >
-                      {/* The reveal animation lives on the inner panel: its
-                          keyframes end at `transform: none`, which would wipe
-                          out the centring translate if applied out here. */}
                       <div className="animate-reveal-up overflow-hidden rounded-2xl border border-border-strong bg-surface/95 shadow-lift backdrop-blur-xl">
                         <div className="grid grid-cols-[16rem_1fr]">
-                          {/* Discipline rail */}
                           <ul className="border-r border-border bg-surface-elevated/40 p-2">
                             {categories.map((category) => {
-                              const Icon = categoryIcons[category];
+                              const categoryServices = servicesByCategory[category];
+                              const Icon = resolveServiceIcon(categoryServices[0]?.icon);
                               const current = megaCategory === category;
 
                               return (
                                 <li key={category}>
                                   <Link
-                                    href={`/services/#${categoryAnchors[category]}`}
+                                    href="/services/#solution-areas"
                                     onMouseEnter={() => setMegaCategory(category)}
                                     onFocus={() => setMegaCategory(category)}
                                     onClick={() => setOpenMenu(null)}
@@ -243,7 +240,7 @@ export function Header() {
                                       {category}
                                     </span>
                                     <span className="text-[11px] tabular-nums text-muted-faint">
-                                      {categoryCounts[category]}
+                                      {categoryServices.length}
                                     </span>
                                   </Link>
                                 </li>
@@ -251,10 +248,9 @@ export function Header() {
                             })}
                           </ul>
 
-                          {/* Services in the active discipline */}
                           <div className="p-5">
                             <Link
-                              href={`/services/#${categoryAnchors[megaCategory]}`}
+                              href="/services/#solution-areas"
                               onClick={() => setOpenMenu(null)}
                               className="group block"
                             >
@@ -266,12 +262,12 @@ export function Header() {
                                 />
                               </span>
                               <span className="mt-2 block max-w-xl text-sm leading-relaxed text-muted">
-                                {categoryBlurbs[megaCategory]}
+                                {servicesByCategory[megaCategory]?.[0]?.shortDescription}
                               </span>
                             </Link>
 
                             <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-1">
-                              {servicesByCategory[megaCategory].map((service) => (
+                              {(servicesByCategory[megaCategory] ?? []).map((service) => (
                                 <li key={service.slug}>
                                   <Link
                                     href={`/services/${service.slug}/`}
@@ -295,10 +291,9 @@ export function Header() {
                           </div>
                         </div>
 
-                        {/* Panel footer */}
                         <div className="flex items-center justify-between gap-6 border-t border-border bg-surface-elevated/40 px-5 py-3.5">
                           <p className="text-xs text-muted-faint">
-                            {services.length} services across {categories.length}{" "}
+                            {pillarServices.length} services across {categories.length}{" "}
                             disciplines.
                           </p>
                           <div className="flex items-center gap-2">
@@ -329,15 +324,12 @@ export function Header() {
                     </div>
                   )}
 
-                  {/* Dropdown */}
                   {Boolean(link.children?.length) && menuOpen && (
                     <div
                       onMouseEnter={cancelClose}
                       onMouseLeave={scheduleClose}
                       className="absolute left-1/2 top-full w-[min(40rem,calc(100vw-3rem))] -translate-x-1/2 pt-3"
                     >
-                      {/* Two columns keep the panel three rows tall instead of
-                          six, so it clears the hero headline. */}
                       <div className="animate-reveal-up overflow-hidden rounded-2xl border border-border-strong bg-surface/95 shadow-lift backdrop-blur-xl">
                         <ul className="grid grid-cols-2 gap-1 p-2.5">
                           {link.children?.map((child) => {
@@ -381,7 +373,6 @@ export function Header() {
                           })}
                         </ul>
 
-                        {/* Panel footer — mirrors the services mega menu. */}
                         <div className="flex items-center justify-between gap-6 border-t border-border bg-surface-elevated/40 px-5 py-3.5">
                           <p className="text-xs text-muted-faint">
                             Production AI, shipped end to end.
@@ -407,9 +398,9 @@ export function Header() {
           </ul>
         </nav>
 
-        {/* --------------------------- Desktop actions --------------------------- */}
+        {/* Desktop actions */}
         <div className="hidden items-center gap-2 lg:flex">
-          <a
+            <a
             href={telHref}
             aria-label={`Call ${site.phone}`}
             onClick={() => trackCta("Phone", "header")}
@@ -432,7 +423,7 @@ export function Header() {
           </Link>
         </div>
 
-        {/* ---------------------------- Mobile toggle ---------------------------- */}
+        {/* Mobile toggle */}
         <button
           type="button"
           className="ml-auto rounded-lg p-2 text-foreground transition-colors hover:bg-surface lg:hidden"
@@ -449,7 +440,7 @@ export function Header() {
         </button>
       </div>
 
-      {/* ------------------------------ Mobile nav ------------------------------ */}
+      {/* Mobile nav */}
       {mobileOpen && (
         <nav
           id="mobile-nav"
@@ -459,14 +450,14 @@ export function Header() {
           <ul className="px-6 py-4">
             {navLinks.map((link) => {
               const active = isActive(link);
-              // 48 services is too many for a phone sheet — the mega menu
-              // collapses to its disciplines, which deep-link into the catalog.
+              // Only 11 CMS services now -- small enough to list directly on
+              // a phone sheet, unlike the old 48-item catalog.
               const subLinks =
                 link.children ??
                 (link.mega
-                  ? categories.map((category) => ({
-                      href: `/services/#${categoryAnchors[category]}`,
-                      label: category,
+                  ? pillarServices.map((service) => ({
+                      href: `/services/${service.slug}/`,
+                      label: service.title,
                     }))
                   : undefined);
 
@@ -488,7 +479,6 @@ export function Header() {
                     />
                   </Link>
 
-                  {/* Sub-navigation, indented under its parent */}
                   {subLinks && (
                     <ul className="pb-3 pl-4">
                       {subLinks.map((child) => (
@@ -521,7 +511,7 @@ export function Header() {
               Get Free Consultation
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
-            <a
+              <a
               href={telHref}
               className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface text-sm font-semibold text-foreground"
             >

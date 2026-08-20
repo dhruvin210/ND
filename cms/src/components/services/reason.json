@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_services_reasons",
+  "info": {
+    "displayName": "Reason",
+    "icon": "star",
+    "description": "A single 'Why Choose Us' point — title plus supporting copy."
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "maxLength": 600
+    }
+  }
+}
